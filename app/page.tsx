@@ -1,13 +1,31 @@
-import PostCard from "@/components/post-card";
-import { posts } from "@/lib/posts";
+import { auth, signIn } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function FeedPage() {
+export default async function HomePage() {
+  const session = await auth();
+
+  // if (session) {
+  //   redirect("/card");
+  // }
+
   return (
-    <div className="stack">
-      <h1>Public Feed</h1>
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
+    <main>
+      <h1>Login</h1>
+
+      <form
+        action={async (formData) => {
+          "use server";
+
+          await signIn("resend", {
+            email: formData.get("email"),
+            redirectTo: "/card",
+          });
+        }}
+      >
+        <input type="email" name="email" placeholder="Email" required />
+
+        <button type="submit">Entrar</button>
+      </form>
+    </main>
   );
 }
