@@ -22,7 +22,7 @@ export default async function HomePage() {
               </h1>
 
               <p className="mt-3 text-base text-[#92B4D4]">
-                Entre na tua conta de sócio do NECC.
+                Entra na tua conta de sócio do NECC.
               </p>
             </div>
 
