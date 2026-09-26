@@ -8,20 +8,21 @@ datasource db {
 }
 
 model User {
-  id String @id @default(cuid(2))
+  id            String    @id @default(cuid(2))
   name          String
-  email         String?         @unique
+  email         String?   @unique
   emailVerified DateTime?
   studentNumber String?
   phoneNumber   String?
   since         DateTime?
+  memberNumber  Int       @unique
 
-  accounts      Account[]
-  sessions      Session[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  accounts  Account[]
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
- 
+
 model Account {
   userId            String
   type              String
@@ -34,29 +35,29 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@id([provider, providerAccountId])
 }
- 
+
 model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@id([identifier, token])
 }

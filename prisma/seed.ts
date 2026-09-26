@@ -23,6 +23,7 @@ type Socio = {
   studentNumber: string | null;
   phoneNumber: string | null;
   since: string | null;
+  memberNumber: number;
 };
 
 async function main() {
@@ -40,6 +41,7 @@ async function main() {
       studentNumber: socio.studentNumber,
       phoneNumber: socio.phoneNumber,
       since: socio.since ? new Date(socio.since) : null,
+      memberNumber: socio.memberNumber,
     };
 
     let result;
@@ -51,18 +53,15 @@ async function main() {
         update: payload,
         create: { ...payload, email: socio.email },
       });
-    } else if (socio.studentNumber) {
-      // sem email mas com número de sócio/aluno: usar isso como chave
+    } else {
+      // sem email: usar o memberNumber (único) como chave de deduplicação
       const existing = await prisma.user.findFirst({
-        where: { studentNumber: socio.studentNumber },
+        where: { memberNumber: socio.memberNumber },
       });
 
       result = existing
         ? await prisma.user.update({ where: { id: existing.id }, data: payload })
         : await prisma.user.create({ data: { ...payload, email: null } });
-    } else {
-      // sem email e sem número: não há chave fiável, cria sempre
-      result = await prisma.user.create({ data: { ...payload, email: null } });
     }
 
     if (result.createdAt.getTime() === result.updatedAt.getTime()) {
