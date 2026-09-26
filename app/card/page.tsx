@@ -1,17 +1,22 @@
 import { auth, signOut } from "@/auth";
-import { redirect } from "next/navigation";
 
 export default async function CardPage() {
   const session = await auth();
+  const studentNumber = (
+    session?.user as { studentNumber?: string } | undefined
+  )?.studentNumber;
 
-  // if (!session) {
-  //   redirect("/");
-  // }
+  console.log("session", session);
 
   return (
     <main>
-      <h1>Cartão de Sócio</h1>
-      <p>{session?.user?.email}</p>
+      <h1>Olá, {session?.user?.name}!</h1>
+
+      <p>Parabéns por assumires que és gay e por seres sócio do NECC! 🏳️‍🌈</p>
+
+      <p>
+        Número de estudante: <strong>{studentNumber}</strong>
+      </p>
 
       <form
         action={async () => {
