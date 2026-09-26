@@ -2,7 +2,6 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import Resend from "next-auth/providers/resend";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
-
 declare module "next-auth" {
   interface Session {
     user: {
@@ -20,7 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
-      from: "onboarding@socios.necc.pt",
+      from: "login@socios.necc.pt",
     }),
   ],
 });

@@ -1,6 +1,6 @@
 # To do: 
-- tratar de um design básico + uma api 
-- ver os tipos da session
+- uma api para admin talvez muda db para ter um role de admin
+- design basico do email
 
 # Docs
 - Conta do resend foi criada com o email dos devs
