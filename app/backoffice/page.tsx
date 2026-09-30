@@ -7,18 +7,13 @@ export default async function BackofficePage() {
 
   if (!session) {
     redirect("/");
-  }
-
-  if (session.user.role === "MEMBER") {
+  } else if (session.user.role === "MEMBER") {
     redirect("/card");
   }
-
   return (
     <main className="min-h-dvh bg-[#161E2E]">
       <header className="flex h-16 items-center justify-between border-b border-white/10 px-6">
-        <h1 className="text-lg font-semibold text-white">
-          Gestão de Sócios
-        </h1>
+        <h1 className="text-lg font-semibold text-white">Gestão de Sócios</h1>
 
         <form
           action={async () => {
