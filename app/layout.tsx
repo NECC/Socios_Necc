@@ -3,8 +3,34 @@ import { Orbitron } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Blogr",
-  description: "A fullstack blog starter built with Next.js and Prisma.",
+  title: {
+    default: "Sócios NECC",
+    template: "%s | Sócios NECC",
+  },
+  description:
+    "Plataforma de gestão e acesso à área de sócios do Núcleo de Estudantes de Ciências da Computação da Universidade do Minho.",
+  applicationName: "Sócios NECC",
+  authors: [
+    {
+      name: "NECC",
+      url: "https://necc.pt",
+    },
+  ],
+  icons: {
+    icon: "/favicon.png",
+  },
+  creator: "NECC",
+  publisher: "NECC",
+  keywords: [
+    "NECC",
+    "Ciências da Computação",
+    "Universidade do Minho",
+    "Sócios",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 const orbitron = Orbitron({

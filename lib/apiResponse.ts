@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
-export function successResponse<T>(data: T, status = 200) {
+export function successResponse<T>(data: T) {
   return NextResponse.json(
     {
       status: "success",
       data,
     },
-    { status },
+    { status: 200 },
   );
 }
 

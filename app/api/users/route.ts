@@ -1,15 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { SearchType } from "@/types/api";
 import { successResponse, errorResponse } from "@/lib/apiResponse";
-
-const memberSelect = {
-  id: true,
-  name: true,
-  email: true,
-  studentNumber: true,
-  phoneNumber: true,
-  memberNumber: true,
-};
 
 export const GET = auth(async function GET(req) {
   if (!req.auth) {
@@ -24,42 +16,99 @@ export const GET = auth(async function GET(req) {
   }
 
   const { searchParams } = new URL(req.url);
-  const search = searchParams.get("search")?.trim() ?? "";
+
+  const type = searchParams.get("type") as SearchType | null;
+  const value = searchParams.get("value")?.trim() ?? "";
 
   try {
-    const users = await prisma.user.findMany({
-      where: search
-        ? {
-            OR: [
-              {
-                name: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-              {
-                email: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            ],
-          }
-        : undefined,
+    if (!type || !value) {
+      return errorResponse("Missing search type or value", 400);
+    }
 
+    const validSearchTypes: SearchType[] = [
+      "name",
+      "email",
+      "memberNumber",
+      "studentNumber",
+      "phoneNumber",
+    ];
+
+    if (!validSearchTypes.includes(type)) {
+      return errorResponse("Invalid search type", 400);
+    }
+
+    let where;
+
+    switch (type) {
+      case "name":
+        where = {
+          name: {
+            contains: value,
+            mode: "insensitive" as const,
+          },
+        };
+        break;
+
+      case "email":
+        where = {
+          email: {
+            contains: value,
+            mode: "insensitive" as const,
+          },
+        };
+        break;
+
+      case "studentNumber":
+        where = {
+          studentNumber: {
+            contains: value,
+            mode: "insensitive" as const,
+          },
+        };
+        break;
+
+      case "phoneNumber":
+        where = {
+          phoneNumber: {
+            contains: value,
+          },
+        };
+        break;
+
+      case "memberNumber": {
+        const memberNumber = Number(value);
+
+        if (!Number.isInteger(memberNumber)) {
+          return errorResponse("Member number must be a valid number", 400);
+        }
+
+        where = {
+          memberNumber,
+        };
+
+        break;
+      }
+    }
+
+    const users = await prisma.user.findMany({
+      where,
       orderBy: {
         memberNumber: "asc",
       },
-
       take: 15,
-
-      select: memberSelect,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        studentNumber: true,
+        phoneNumber: true,
+        memberNumber: true,
+      },
     });
 
     return successResponse(users);
   } catch (error) {
     console.error(error);
-
     return errorResponse("An unexpected error occurred", 500);
   }
 });
@@ -89,13 +138,19 @@ export const POST = auth(async function POST(req) {
         phoneNumber,
       },
 
-      select: memberSelect,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        studentNumber: true,
+        phoneNumber: true,
+        memberNumber: true,
+      },
     });
 
-    return successResponse(user, 201);
+    return successResponse(user);
   } catch (error) {
     console.error(error);
-
     return errorResponse("An unexpected error occurred", 500);
   }
 });

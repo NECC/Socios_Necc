@@ -55,31 +55,34 @@ export default function UserModal({
         <form onSubmit={onSubmit}>
           <div className="space-y-4 px-6 py-6">
             <div>
-              <label className="mb-2 block text-sm text-[#92B4D4]">
-                Nome
-              </label>
+              <label className="mb-2 block text-sm text-[#92B4D4]">Nome</label>
 
               <input
                 type="text"
                 value={form.name}
                 onChange={(event) => onChange("name", event.target.value)}
                 required
+                maxLength={100}
+                title="Máximo de 100 caracteres. Ex: Alan Turing"
+                autoComplete="name"
                 className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                placeholder="Nome completo"
+                placeholder="Ex: Alan Turing"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm text-[#92B4D4]">
-                Email
-              </label>
+              <label className="mb-2 block text-sm text-[#92B4D4]">Email</label>
 
               <input
                 type="email"
                 value={form.email}
                 onChange={(event) => onChange("email", event.target.value)}
+                required
+                maxLength={254}
+                title="O email deve ser válido. Ex: turing@uminho.pt"
+                autoComplete="email"
                 className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                placeholder="email@exemplo.com"
+                placeholder="Ex: turing@uminho.pt"
               />
             </div>
 
@@ -92,26 +95,41 @@ export default function UserModal({
                 type="text"
                 value={form.studentNumber}
                 onChange={(event) =>
-                  onChange("studentNumber", event.target.value)
+                  onChange("studentNumber", event.target.value.toUpperCase())
                 }
-                className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                placeholder="PG-59783"
+                required
+                maxLength={20}
+                pattern="[A-Z]+[0-9]+"
+                title="O número deve conter letras seguidas de números. Ex: A123 ou PG123 ou E123"
+                autoComplete="off"
+                className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white uppercase outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
+                placeholder="Ex: PG123 ou A123 ou E123"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-[#92B4D4]">
-                Telefone
+                Telemóvel
               </label>
 
               <input
                 type="tel"
                 value={form.phoneNumber}
                 onChange={(event) =>
-                  onChange("phoneNumber", event.target.value)
+                  onChange(
+                    "phoneNumber",
+                    event.target.value.replace(/\D/g, "").slice(0, 9),
+                  )
                 }
+                required
+                minLength={9}
+                maxLength={9}
+                title="O número deve conter exatamente 9 dígitos. Ex: 912345678"
+                pattern="[0-9]{9}"
+                inputMode="numeric"
+                autoComplete="tel"
                 className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                placeholder="912345678"
+                placeholder="Ex: 912345678"
               />
             </div>
           </div>

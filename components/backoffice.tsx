@@ -1,11 +1,12 @@
 "use client";
 
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import type { User, UserForm } from "@/types/user";
 import type { ApiResponse } from "@/types/api";
 import { getApiErrorMessage } from "@/lib/apiError";
 import UserModal from "./userModel";
+import UserSearch, { type SearchType } from "./userSearch";
 
 const emptyForm: UserForm = {
   name: "",
@@ -16,39 +17,44 @@ const emptyForm: UserForm = {
 
 export default function Backoffice() {
   const [users, setUsers] = useState<User[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-
+  const [loading, setLoading] = useState(false);
+  const [hasSearch, setHasSearch] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form, setForm] = useState<UserForm>(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  async function loadUsers(searchValue = "") {
-    setLoading(true);
+  const loadUsers = useCallback(
+    async (searchType: SearchType, searchValue: string) => {
+      const value = searchValue.trim();
 
-    try {
-      const response = await axios.get<ApiResponse<User[]>>("/api/users", {
-        params: {
-          search: searchValue,
-        },
-      });
+      if (!value) {
+        setUsers([]);
+        setHasSearch(false);
+        setLoading(false);
+        return;
+      }
 
-      setUsers(response.data.data);
-    } catch (error) {
-      alert(getApiErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  }
+      setHasSearch(true);
+      setLoading(true);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      loadUsers(search);
-    }, 300);
+      try {
+        const response = await axios.get<ApiResponse<User[]>>("/api/users", {
+          params: {
+            type: searchType,
+            value,
+          },
+        });
 
-    return () => clearTimeout(timeout);
-  }, [search]);
+        setUsers(response.data.data);
+      } catch (error) {
+        alert(getApiErrorMessage(error));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   function openCreateModal() {
     setEditingUser(null);
@@ -174,15 +180,7 @@ export default function Backoffice() {
           </button>
         </div>
 
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Pesquisar por nome ou email..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-[#202A3D] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-          />
-        </div>
+        <UserSearch onSearch={loadUsers} />
 
         <div className="overflow-hidden rounded-xl border border-white/10 bg-[#202A3D]">
           <div className="max-h-[calc(100dvh-260px)] overflow-auto">
@@ -192,19 +190,38 @@ export default function Backoffice() {
                   <th className="px-5 py-4">Sócio</th>
                   <th className="px-5 py-4">Email</th>
                   <th className="px-5 py-4">N.º Sócio</th>
-                  <th className="px-5 py-4">Curso</th>
+                  <th className="px-5 py-4">N.º Aluno</th>
+                  <th className="px-5 py-4">Telemóvel</th>
                   <th className="px-5 py-4 text-right">Ações</th>
                 </tr>
               </thead>
 
               <tbody>
-                {loading ? (
+                {!hasSearch ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
+                      className="px-5 py-12 text-center text-sm text-[#92B4D4]"
+                    >
+                      Adiciona um filtro para veres sócios
+                    </td>
+                  </tr>
+                ) : loading ? (
+                  <tr>
+                    <td
+                      colSpan={6}
                       className="px-5 py-8 text-center text-sm text-[#92B4D4]"
                     >
                       A carregar...
+                    </td>
+                  </tr>
+                ) : users.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-5 py-8 text-center text-sm text-[#92B4D4]"
+                    >
+                      Nenhum sócio encontrado
                     </td>
                   </tr>
                 ) : (
@@ -227,6 +244,10 @@ export default function Backoffice() {
 
                       <td className="px-5 py-4 text-[#92B4D4]">
                         {user.studentNumber ?? "-"}
+                      </td>
+
+                      <td className="px-5 py-4 text-[#92B4D4]">
+                        {user.phoneNumber ?? "-"}
                       </td>
 
                       <td className="px-5 py-4">

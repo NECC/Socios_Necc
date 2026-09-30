@@ -27,7 +27,7 @@ export default async function CardPage() {
 
           <div>
             <p className="text-sm font-medium sm:text-base">
-              {studentNumber?.toUpperCase() ?? "A------"}
+              {studentNumber ?? "A------"}
             </p>
             <p className="mt-1 text-xl font-medium leading-tight sm:text-2xl">
               {name || "Nome Completo do Sócio"}
