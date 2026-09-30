@@ -8,3 +8,4 @@ tsconfig.tsbuildinfo
 .vercel
 generated/prisma/
 prisma/socios.json
+prisma/seed.ts

@@ -52,7 +52,14 @@ export default function SignIn() {
 
       setEmailSent(true);
     } catch (error) {
-      alert(getApiErrorMessage(error));
+      showToast.error(getApiErrorMessage(error), {
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "swingInverted",
+        icon: "",
+        sound: false,
+      });
     } finally {
       setLoading(false);
     }
