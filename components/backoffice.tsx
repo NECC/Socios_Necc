@@ -36,7 +36,6 @@ export default function Backoffice() {
 
       setUsers(response.data.data);
     } catch (error) {
-      console.error(error);
       alert(getApiErrorMessage(error));
     } finally {
       setLoading(false);
@@ -131,7 +130,6 @@ export default function Backoffice() {
 
       closeModal();
     } catch (error) {
-      console.error(error);
       alert(getApiErrorMessage(error));
     } finally {
       setSaving(false);
@@ -152,7 +150,6 @@ export default function Backoffice() {
 
       setUsers((current) => current.filter((user) => user.id !== id));
     } catch (error) {
-      console.error(error);
       alert(getApiErrorMessage(error));
     }
   }

@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { errorResponse, successResponse } from "@/lib/apiResponse";
 
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
 
     if (typeof email !== "string" || !email.trim()) {
-      return NextResponse.json({ exists: false }, { status: 400 });
+      return errorResponse("Email is required", 400);
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -20,15 +20,13 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({
+    return successResponse({
       exists: !!user,
     });
   } catch (error) {
     console.error("Error checking member:", error);
 
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return errorResponse("An unexpected error occurred", 500);
   }
 }
+

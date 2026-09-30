@@ -4,6 +4,12 @@ import { useState } from "react";
 import axios from "axios";
 import { signIn } from "next-auth/react";
 import { showToast } from "nextjs-toast-notify";
+import type { ApiResponse } from "@/types/api";
+import { getApiErrorMessage } from "@/lib/apiError";
+
+type CheckUserResponse = {
+  exists: boolean;
+};
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -18,11 +24,14 @@ export default function SignIn() {
     try {
       const normalizedEmail = email.trim().toLowerCase();
 
-      const response = await axios.post("/api/checkUser", {
-        email: normalizedEmail,
-      });
+      const response = await axios.post<ApiResponse<CheckUserResponse>>(
+        "/api/checkUser",
+        {
+          email: normalizedEmail,
+        },
+      );
 
-      if (!response.data.exists) {
+      if (!response.data.data.exists) {
         showToast.error("Email não registado", {
           duration: 4000,
           progress: false,
@@ -42,15 +51,8 @@ export default function SignIn() {
       });
 
       setEmailSent(true);
-    } catch {
-      showToast.error("Email não registado", {
-        duration: 4000,
-        progress: false,
-        position: "top-right",
-        transition: "swingInverted",
-        icon: "",
-        sound: false,
-      });
+    } catch (error) {
+      alert(getApiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -64,22 +66,17 @@ export default function SignIn() {
             ✉️
           </div>
 
-          <h2 className="font-medium text-white">
-            Email enviado!
-          </h2>
+          <h2 className="font-medium text-white">Email enviado!</h2>
         </div>
 
         <p className="text-sm leading-6 text-[#92B4D4]">
           Enviámos um link de acesso para:
         </p>
 
-        <p className="mt-1 break-all font-medium text-white">
-          {email}
-        </p>
+        <p className="mt-1 break-all font-medium text-white">{email}</p>
 
         <p className="mt-3 text-sm leading-6 text-[#92B4D4]">
-          Verifica a tua caixa de entrada e clica no link para
-          continuar.
+          Verifica a tua caixa de entrada e clica no link para continuar.
         </p>
       </div>
     );
@@ -111,7 +108,7 @@ export default function SignIn() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-[#3B9EFF] px-4 py-3.5 font-medium text-white transition hover:bg-[#3B9EFF]/85 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3B9EFF] focus:ring-offset-2 focus:ring-offset-[#161E2E] disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full cursor-pointer rounded-xl bg-[#3B9EFF] px-4 py-3.5 font-medium text-white transition hover:bg-[#3B9EFF]/85 focus:outline-none focus:ring-2 focus:ring-[#3B9EFF] focus:ring-offset-2 focus:ring-offset-[#161E2E] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "A verificar..." : "Entrar"}
       </button>

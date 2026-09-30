@@ -52,11 +52,9 @@ export const PATCH = auth(async function PATCH(req, { params }) {
 });
 
 export const DELETE = auth(async function DELETE(req, { params }) {
-  console.log("1 - auth:", req.auth);
   if (!req.auth) {
     return errorResponse("Authentication required", 401);
   }
-  console.log("2222222222222222222222");
 
   if (req.auth.user.role !== "ADMIN") {
     return errorResponse(
