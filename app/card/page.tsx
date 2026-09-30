@@ -42,7 +42,7 @@ export default async function CardPage() {
                 {formatStudentNumber(session.user.studentNumber)}
               </p>
 
-              <p className="mt-1 break-words text-xl font-medium leading-tight text-white sm:text-2xl">
+              <p className="mt-1 wrap-break-word text-xl font-medium leading-tight text-white sm:text-2xl">
                 {session.user.name || "Nome Completo do Sócio"}
               </p>
             </div>
