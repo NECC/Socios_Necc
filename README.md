@@ -1,5 +1,4 @@
 # To do: 
-- uma api para admin talvez muda db para ter uma role de admin
 - design basico do email
 
 # Docs

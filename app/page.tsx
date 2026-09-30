@@ -5,7 +5,6 @@ import Image from "next/image";
 
 export default async function HomePage() {
   const session = await auth();
-
   if (session) {
     redirect("/card");
   }

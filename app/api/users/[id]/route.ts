@@ -1,62 +1,83 @@
 import { auth } from "@/auth";
-import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { successResponse, errorResponse } from "@/lib/apiResponse";
+
+const memberSelect = {
+  id: true,
+  name: true,
+  email: true,
+  studentNumber: true,
+  phoneNumber: true,
+  memberNumber: true,
+};
 
 export const PATCH = auth(async function PATCH(req, { params }) {
-  if (!req.auth || req.auth.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Not authorized" }, { status: 403 });
+  if (!req.auth) {
+    return errorResponse("Authentication required", 401);
+  }
+
+  if (req.auth.user.role !== "ADMIN") {
+    return errorResponse(
+      "You do not have permission to perform this action",
+      403,
+    );
   }
 
   try {
     const { id } = await params;
+
     const { name, email, studentNumber, phoneNumber } = await req.json();
 
     const user = await prisma.user.update({
       where: {
         id,
       },
+
       data: {
         name,
         email,
         studentNumber,
         phoneNumber,
       },
+
+      select: memberSelect,
     });
 
-    return NextResponse.json(user);
+    return successResponse(user);
   } catch (error) {
     console.error(error);
 
-    return NextResponse.json(
-      { message: "Erro ao atualizar sócio" },
-      { status: 500 },
-    );
+    return errorResponse("An unexpected error occurred", 500);
   }
 });
 
 export const DELETE = auth(async function DELETE(req, { params }) {
-  if (!req.auth || req.auth.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Not authorized" }, { status: 403 });
+  console.log("1 - auth:", req.auth);
+  if (!req.auth) {
+    return errorResponse("Authentication required", 401);
+  }
+  console.log("2222222222222222222222");
+
+  if (req.auth.user.role !== "ADMIN") {
+    return errorResponse(
+      "You do not have permission to perform this action",
+      403,
+    );
   }
 
   try {
     const { id } = await params;
 
-    await prisma.user.delete({
+    const user = await prisma.user.delete({
       where: {
         id,
       },
     });
 
-    return NextResponse.json({
-      message: "Sócio apagado com sucesso",
-    });
+    return successResponse(user);
   } catch (error) {
     console.error(error);
 
-    return NextResponse.json(
-      { message: "Erro ao apagar sócio" },
-      { status: 500 },
-    );
+    return errorResponse("An unexpected error occurred", 500);
   }
 });

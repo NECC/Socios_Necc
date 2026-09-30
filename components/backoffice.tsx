@@ -2,23 +2,10 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-type User = {
-  id: string;
-  name: string;
-  email: string | null;
-  studentNumber: string | null;
-  phoneNumber: string | null;
-  since: string | null;
-  memberNumber: number;
-};
-
-type UserForm = {
-  name: string;
-  email: string;
-  studentNumber: string;
-  phoneNumber: string;
-};
+import type { User, UserForm } from "@/types/user";
+import type { ApiResponse } from "@/types/api";
+import { getApiErrorMessage } from "@/lib/apiError";
+import UserModal from "./userModel";
 
 const emptyForm: UserForm = {
   name: "",
@@ -41,15 +28,16 @@ export default function Backoffice() {
     setLoading(true);
 
     try {
-      const response = await axios.get<User[]>("/api/users", {
+      const response = await axios.get<ApiResponse<User[]>>("/api/users", {
         params: {
           search: searchValue,
         },
       });
 
-      setUsers(response.data);
+      setUsers(response.data.data);
     } catch (error) {
       console.error(error);
+      alert(getApiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -118,21 +106,24 @@ export default function Backoffice() {
 
     try {
       if (editingUser) {
-        const response = await axios.patch<User>(
+        const response = await axios.patch<ApiResponse<User>>(
           `/api/users/${editingUser.id}`,
           data,
         );
 
         setUsers((current) =>
           current.map((user) =>
-            user.id === editingUser.id ? response.data : user,
+            user.id === editingUser.id ? response.data.data : user,
           ),
         );
       } else {
-        const response = await axios.post<User>("/api/users", data);
+        const response = await axios.post<ApiResponse<User>>(
+          "/api/users",
+          data,
+        );
 
         setUsers((current) =>
-          [...current, response.data].sort(
+          [...current, response.data.data].sort(
             (a, b) => a.memberNumber - b.memberNumber,
           ),
         );
@@ -141,12 +132,7 @@ export default function Backoffice() {
       closeModal();
     } catch (error) {
       console.error(error);
-
-      if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.message ?? "Erro ao guardar sócio.");
-      } else {
-        alert("Erro ao guardar sócio.");
-      }
+      alert(getApiErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -162,12 +148,12 @@ export default function Backoffice() {
     }
 
     try {
-      await axios.delete(`/api/users/${id}`);
+      await axios.delete<ApiResponse<null>>(`/api/users/${id}`);
 
       setUsers((current) => current.filter((user) => user.id !== id));
     } catch (error) {
       console.error(error);
-      alert("Erro ao apagar sócio");
+      alert(getApiErrorMessage(error));
     }
   }
 
@@ -224,15 +210,6 @@ export default function Backoffice() {
                       A carregar...
                     </td>
                   </tr>
-                ) : users.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-5 py-8 text-center text-sm text-[#92B4D4]"
-                    >
-                      Nenhum sócio encontrado.
-                    </td>
-                  </tr>
                 ) : (
                   users.map((user) => (
                     <tr
@@ -282,122 +259,15 @@ export default function Backoffice() {
       </section>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-xl border border-white/10 bg-[#202A3D] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-              <div>
-                <h3 className="text-lg font-semibold text-white">
-                  {editingUser ? "Editar sócio" : "Novo sócio"}
-                </h3>
-
-                <p className="mt-1 text-sm text-[#92B4D4]">
-                  {editingUser
-                    ? "Alterar os dados deste sócio."
-                    : "Adicionar um novo sócio ao NECC."}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                disabled={saving}
-                className="cursor-pointer rounded-md px-2 py-1 text-xl text-[#92B4D4] hover:bg-white/5 hover:text-white disabled:opacity-50"
-              >
-                ×
-              </button>
-            </div>
-
-            <form onSubmit={saveUser}>
-              <div className="space-y-4 px-6 py-6">
-                <div>
-                  <label className="mb-2 block text-sm text-[#92B4D4]">
-                    Nome
-                  </label>
-
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(event) => updateForm("name", event.target.value)}
-                    required
-                    className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                    placeholder="Nome completo"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm text-[#92B4D4]">
-                    Email
-                  </label>
-
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(event) =>
-                      updateForm("email", event.target.value)
-                    }
-                    className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                    placeholder="email@exemplo.com"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm text-[#92B4D4]">
-                    N.º Estudante
-                  </label>
-
-                  <input
-                    type="text"
-                    value={form.studentNumber}
-                    onChange={(event) =>
-                      updateForm("studentNumber", event.target.value)
-                    }
-                    className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                    placeholder="PG-59783"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm text-[#92B4D4]">
-                    Telefone
-                  </label>
-
-                  <input
-                    type="tel"
-                    value={form.phoneNumber}
-                    onChange={(event) =>
-                      updateForm("phoneNumber", event.target.value)
-                    }
-                    className="w-full rounded-lg border border-white/10 bg-[#161E2E] px-4 py-3 text-sm text-white outline-none placeholder:text-[#92B4D4]/50 focus:border-[#3B9EFF]"
-                    placeholder="912345678"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 border-t border-white/10 px-6 py-4">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  disabled={saving}
-                  className="cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-[#92B4D4] transition hover:bg-white/5 hover:text-white disabled:opacity-50"
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="cursor-pointer rounded-lg bg-[#3B9EFF] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2D8FEF] disabled:opacity-50"
-                >
-                  {saving
-                    ? "A guardar..."
-                    : editingUser
-                      ? "Guardar alterações"
-                      : "Criar sócio"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <UserModal
+          show={showModal}
+          editingUser={editingUser}
+          form={form}
+          saving={saving}
+          onClose={closeModal}
+          onSubmit={saveUser}
+          onChange={updateForm}
+        />
       )}
     </>
   );

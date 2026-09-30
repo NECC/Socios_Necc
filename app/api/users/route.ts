@@ -1,48 +1,79 @@
 import { auth } from "@/auth";
-import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { successResponse, errorResponse } from "@/lib/apiResponse";
+
+const memberSelect = {
+  id: true,
+  name: true,
+  email: true,
+  studentNumber: true,
+  phoneNumber: true,
+  memberNumber: true,
+};
 
 export const GET = auth(async function GET(req) {
-  if (!req.auth || req.auth.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Not authorized" }, { status: 403 });
+  if (!req.auth) {
+    return errorResponse("Authentication required", 401);
+  }
+
+  if (req.auth.user.role !== "ADMIN") {
+    return errorResponse(
+      "You do not have permission to perform this action",
+      403,
+    );
   }
 
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("search")?.trim() ?? "";
 
-  const users = await prisma.user.findMany({
-    where: search
-      ? {
-          OR: [
-            {
-              name: {
-                contains: search,
-                mode: "insensitive",
+  try {
+    const users = await prisma.user.findMany({
+      where: search
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: search,
+                  mode: "insensitive",
+                },
               },
-            },
-            {
-              email: {
-                contains: search,
-                mode: "insensitive",
+              {
+                email: {
+                  contains: search,
+                  mode: "insensitive",
+                },
               },
-            },
-          ],
-        }
-      : undefined,
+            ],
+          }
+        : undefined,
 
-    orderBy: {
-      memberNumber: "asc",
-    },
+      orderBy: {
+        memberNumber: "asc",
+      },
 
-    take: 15,
-  });
+      take: 15,
 
-  return NextResponse.json(users);
+      select: memberSelect,
+    });
+
+    return successResponse(users);
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse("An unexpected error occurred", 500);
+  }
 });
 
 export const POST = auth(async function POST(req) {
-  if (!req.auth || req.auth.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Not authorized" }, { status: 403 });
+  if (!req.auth) {
+    return errorResponse("Authentication required", 401);
+  }
+
+  if (req.auth.user.role !== "ADMIN") {
+    return errorResponse(
+      "You do not have permission to perform this action",
+      403,
+    );
   }
 
   try {
@@ -57,13 +88,14 @@ export const POST = auth(async function POST(req) {
         studentNumber,
         phoneNumber,
       },
+
+      select: memberSelect,
     });
 
-    return NextResponse.json(user, { status: 201 });
+    return successResponse(user, 201);
   } catch (error) {
-    return NextResponse.json(
-      { message: "Erro ao criar sócio" },
-      { status: 500 },
-    );
+    console.error(error);
+
+    return errorResponse("An unexpected error occurred", 500);
   }
 });
