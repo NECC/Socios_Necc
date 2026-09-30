@@ -9,5 +9,5 @@ export const proxy = auth((req) => {
 })
 
 export const config = {
-  matcher: ["/card"],
+  matcher: ["/card", "/dashboard"],
 }

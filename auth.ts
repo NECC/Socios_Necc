@@ -5,10 +5,11 @@ import prisma from "@/lib/prisma";
 declare module "next-auth" {
   interface Session {
     user: {
-      memberNumber?: string;
+      memberNumber?: number;
       email?: string;
       name: string;
       studentNumber?: string;
+      role: "MEMBER" | "ADMIN";
     } & DefaultSession["user"];
   }
 }

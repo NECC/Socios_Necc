@@ -18,7 +18,7 @@ export default function SignIn() {
     try {
       const normalizedEmail = email.trim().toLowerCase();
 
-      const response = await axios.post("/api/checkMember", {
+      const response = await axios.post("/api/checkUser", {
         email: normalizedEmail,
       });
 

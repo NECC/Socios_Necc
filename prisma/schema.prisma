@@ -8,15 +8,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid(2))
+  id String @id @default(cuid(2))
+
   name          String
-  email         String?   @unique
-  emailVerified DateTime?
+  email         String?   @unique // input user input form
   studentNumber String?
   phoneNumber   String?
-  since         DateTime?
-  memberNumber  Int       @unique
 
+  since        DateTime? @default(now())
+  memberNumber Int       @default(autoincrement()) // default values
+  role         Role      @default(MEMBER)
+
+  emailVerified DateTime?
   accounts  Account[]
   sessions  Session[]
   createdAt DateTime  @default(now())
@@ -60,4 +63,9 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+enum Role {
+  MEMBER
+  ADMIN
 }
