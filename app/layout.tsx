@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     },
   ],
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.png",
   },
   creator: "NECC",
   publisher: "NECC",
