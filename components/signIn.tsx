@@ -103,7 +103,7 @@ export default function SignIn() {
           id="email"
           type="email"
           name="email"
-          placeholder="nome@exemplo.com"
+          placeholder="turing@uminho.pt"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
