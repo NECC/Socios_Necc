@@ -13,4 +13,5 @@ export type SearchType =
   | "email"
   | "memberNumber"
   | "studentNumber"
-  | "phoneNumber";
+  | "phoneNumber"
+  | "year";

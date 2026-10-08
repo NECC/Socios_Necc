@@ -31,6 +31,7 @@ export const GET = auth(async function GET(req) {
       "memberNumber",
       "studentNumber",
       "phoneNumber",
+      "year",
     ];
 
     if (!validSearchTypes.includes(type)) {
@@ -88,6 +89,31 @@ export const GET = auth(async function GET(req) {
 
         break;
       }
+
+      case "year": {
+        if (!/^\d{4}$/.test(value)) {
+          return errorResponse("Invalid registration year", 400);
+        }
+
+        const year = Number(value);
+
+        if (year < 1900 || year > 9999) {
+          return errorResponse("Invalid registration year", 400);
+        }
+
+        const startOfYear = new Date(Date.UTC(year, 0, 1));
+
+        const startOfNextYear = new Date(Date.UTC(year + 1, 0, 1));
+
+        where = {
+          since: {
+            gte: startOfYear,
+            lt: startOfNextYear,
+          },
+        };
+
+        break;
+      }
     }
 
     const users = await prisma.user.findMany({
@@ -95,7 +121,7 @@ export const GET = auth(async function GET(req) {
       orderBy: {
         memberNumber: "asc",
       },
-      take: 15,
+      take: type === "year" ? undefined : 15,
       select: {
         id: true,
         name: true,

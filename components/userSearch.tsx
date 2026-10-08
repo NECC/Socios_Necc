@@ -7,7 +7,8 @@ export type SearchType =
   | "email"
   | "memberNumber"
   | "studentNumber"
-  | "phoneNumber";
+  | "phoneNumber"
+  | "year";
 
 type SearchOption = {
   value: SearchType;
@@ -41,6 +42,11 @@ const searchOptions: SearchOption[] = [
     label: "Telemóvel",
     placeholder: "Pesquisar por telemóvel. Ex: 912345678",
   },
+  {
+    value: "year",
+    label: "Ano de inscrição",
+    placeholder: "Introduzir ano. Ex: 2027",
+  },
 ];
 
 type UserSearchProps = {
@@ -49,7 +55,6 @@ type UserSearchProps = {
 
 export default function UserSearch({ onSearch }: UserSearchProps) {
   const [searchType, setSearchType] = useState<SearchType>("name");
-
   const [search, setSearch] = useState("");
 
   const selectedSearchOption = searchOptions.find(
@@ -58,7 +63,18 @@ export default function UserSearch({ onSearch }: UserSearchProps) {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      onSearch(searchType, search);
+      const value = search.trim();
+
+      if (!value) {
+        onSearch(searchType, "");
+        return;
+      }
+
+      if (searchType === "year" && !/^\d{4}$/.test(value)) {
+        return;
+      }
+
+      onSearch(searchType, value);
     }, 300);
 
     return () => clearTimeout(timeout);
