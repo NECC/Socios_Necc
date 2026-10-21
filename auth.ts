@@ -20,13 +20,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           to: identifier,
           subject: "Acesso à área de sócios — NECC",
 
+          text: `
+Bem-vindo ao NECC!
+
+Recebemos um pedido de acesso à tua área de sócio.
+
+Utiliza o botão presente na versão HTML deste email para entrares na plataforma.
+
+Se não foste tu que pediste este acesso, podes ignorar este email.
+
+NECC · Universidade do Minho
+          `.trim(),
+
           html: `
             <!DOCTYPE html>
             <html lang="pt">
               <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <title>Acesso à área de sócios</title>
+                <title>Acesso à área de sócios — NECC</title>
               </head>
 
               <body style="
@@ -65,11 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             align="center"
                             style="
                               padding: 32px 30px 24px;
-                              background: linear-gradient(
-                                135deg,
-                                #5C8DFF,
-                                #6B5BF9
-                              );
+                              background-color: #5C8DFF;
                             "
                           >
                             <div style="
@@ -84,7 +92,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             <div style="
                               margin-top: 6px;
                               font-size: 13px;
-                              color: rgba(255,255,255,0.85);
+                              color: #ffffff;
                             ">
                               Núcleo de Estudantes de Ciências da Computação
                             </div>
@@ -120,7 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                               line-height: 1.7;
                               color: #92B4D4;
                             ">
-                              Clica no botão abaixo para entrar na plataforma.
+                              Clica no botão abaixo para entrares na plataforma.
                             </p>
 
                             <!-- Button -->
@@ -158,7 +166,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                               font-size: 12px;
                               line-height: 1.6;
                               color: #92B4D4;
-                              opacity: 0.7;
                             ">
                               Se não foste tu que pediste este acesso, podes
                               ignorar este email.
@@ -173,7 +180,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             align="center"
                             style="
                               padding: 20px 30px;
-                              border-top: 1px solid rgba(255,255,255,0.08);
+                              border-top: 1px solid #354154;
                             "
                           >
                             <p style="
