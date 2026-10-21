@@ -190,7 +190,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                     </td>
                   </tr>
-                </table>
+                </table>   
               </body>
             </html>
           `,
