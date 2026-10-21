@@ -20,6 +20,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           to: identifier,
           subject: "Acesso à área de sócios — NECC",
 
+          text: `Bem-vindo!
+
+Recebemos um pedido de acesso à tua área de sócio.
+
+Clica no seguinte link para entrares na plataforma:
+${url}
+
+Se não foste tu que pediste este acesso, podes ignorar este email.
+
+© NECC · Universidade do Minho`,
+
           html: `
             <!DOCTYPE html>
             <html lang="pt">
@@ -190,7 +201,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                     </td>
                   </tr>
-                </table>   
+                </table>
               </body>
             </html>
           `,
@@ -212,6 +223,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       };
     },
   },
+
   pages: {
     signIn: "/",
   },
