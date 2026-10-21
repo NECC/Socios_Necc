@@ -4,7 +4,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import { Resend as ResendClient } from "resend";
 
-const resend = new ResendClient(process.env.AUTH_RESEND_KEY);
+const resend = new ResendClient(process.env.AUTH_RESEND_KEY!);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -20,16 +20,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           to: identifier,
           subject: "Acesso à área de sócios — NECC",
 
-          text: `Bem-vindo!
+          text: `
+Bem-vindo ao NECC!
 
 Recebemos um pedido de acesso à tua área de sócio.
 
-Clica no seguinte link para entrares na plataforma:
-${url}
+Utiliza o botão presente na versão HTML deste email para entrares na plataforma.
 
 Se não foste tu que pediste este acesso, podes ignorar este email.
 
-© NECC · Universidade do Minho`,
+NECC · Universidade do Minho
+          `.trim(),
 
           html: `
             <!DOCTYPE html>
@@ -37,7 +38,7 @@ Se não foste tu que pediste este acesso, podes ignorar este email.
               <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <title>Acesso à área de sócios</title>
+                <title>Acesso à área de sócios — NECC</title>
               </head>
 
               <body style="
@@ -76,11 +77,7 @@ Se não foste tu que pediste este acesso, podes ignorar este email.
                             align="center"
                             style="
                               padding: 32px 30px 24px;
-                              background: linear-gradient(
-                                135deg,
-                                #5C8DFF,
-                                #6B5BF9
-                              );
+                              background-color: #5C8DFF;
                             "
                           >
                             <div style="
@@ -95,7 +92,7 @@ Se não foste tu que pediste este acesso, podes ignorar este email.
                             <div style="
                               margin-top: 6px;
                               font-size: 13px;
-                              color: rgba(255,255,255,0.85);
+                              color: #ffffff;
                             ">
                               Núcleo de Estudantes de Ciências da Computação
                             </div>
@@ -131,7 +128,7 @@ Se não foste tu que pediste este acesso, podes ignorar este email.
                               line-height: 1.7;
                               color: #92B4D4;
                             ">
-                              Clica no botão abaixo para entrar na plataforma.
+                              Clica no botão abaixo para entrares na plataforma.
                             </p>
 
                             <!-- Button -->
@@ -169,7 +166,6 @@ Se não foste tu que pediste este acesso, podes ignorar este email.
                               font-size: 12px;
                               line-height: 1.6;
                               color: #92B4D4;
-                              opacity: 0.7;
                             ">
                               Se não foste tu que pediste este acesso, podes
                               ignorar este email.
@@ -184,7 +180,7 @@ Se não foste tu que pediste este acesso, podes ignorar este email.
                             align="center"
                             style="
                               padding: 20px 30px;
-                              border-top: 1px solid rgba(255,255,255,0.08);
+                              border-top: 1px solid #354154;
                             "
                           >
                             <p style="
@@ -215,6 +211,7 @@ Se não foste tu que pediste este acesso, podes ignorar este email.
       return {
         ...session,
         user: {
+          ...session.user,
           name: user.name,
           role: user.role,
           memberNumber: user.memberNumber,
