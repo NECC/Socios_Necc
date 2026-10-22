@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { SearchType } from "@/types/api";
 import { successResponse, errorResponse } from "@/lib/apiResponse";
+import { parseAcademicYear } from "@/lib/academicYear";
 
 export const GET = auth(async function GET(req) {
   if (!req.auth) {
@@ -91,26 +92,18 @@ export const GET = auth(async function GET(req) {
       }
 
       case "year": {
-        if (!/^\d{4}$/.test(value)) {
-          return errorResponse("Invalid registration year", 400);
+        try {
+          const academicYear = parseAcademicYear(value, new Date());
+
+          where = {
+            since: {
+              gte: academicYear.start,
+              lt: academicYear.end,
+            },
+          };
+        } catch {
+          return errorResponse("Invalid academic year", 400);
         }
-
-        const year = Number(value);
-
-        if (year < 1900 || year > 9999) {
-          return errorResponse("Invalid registration year", 400);
-        }
-
-        const startOfYear = new Date(Date.UTC(year, 0, 1));
-
-        const startOfNextYear = new Date(Date.UTC(year + 1, 0, 1));
-
-        where = {
-          since: {
-            gte: startOfYear,
-            lt: startOfNextYear,
-          },
-        };
 
         break;
       }

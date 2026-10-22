@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { successResponse, errorResponse } from "@/lib/apiResponse";
+import { getCurrentAcademicYearLabel, parseAcademicYear } from "@/lib/academicYear";
 
 export const GET = auth(async function GET(req) {
   if (!req.auth) {
@@ -17,32 +18,23 @@ export const GET = auth(async function GET(req) {
   const { searchParams } = new URL(req.url);
   const yearParam = searchParams.get("year");
 
+  let academicYear;
+
   try {
-    const currentYear = new Date().getFullYear();
+    academicYear = parseAcademicYear(yearParam, new Date());
+  } catch {
+    return errorResponse("Invalid academic year", 400);
+  }
 
-    const selectedYear = yearParam === null ? currentYear : Number(yearParam);
-
-    if (
-      !Number.isInteger(selectedYear) ||
-      !/^\d{4}$/.test(String(yearParam ?? currentYear)) ||
-      selectedYear < 1900 ||
-      selectedYear > currentYear
-    ) {
-      return errorResponse("Invalid registration year", 400);
-    }
-
-    const startOfYear = new Date(`${selectedYear}-01-01T00:00:00.000Z`);
-
-    const startOfNextYear = new Date(`${selectedYear + 1}-01-01T00:00:00.000Z`);
-
+  try {
     const [totalUsers, yearTotal, registrations] = await Promise.all([
       prisma.user.count(),
 
       prisma.user.count({
         where: {
           since: {
-            gte: startOfYear,
-            lt: startOfNextYear,
+            gte: academicYear.start,
+            lt: academicYear.end,
           },
         },
       }),
@@ -59,18 +51,17 @@ export const GET = auth(async function GET(req) {
       }),
     ]);
 
-    const registrationsByYearMap = new Map<number, number>();
+    const registrationsByYearMap = new Map<string, number>();
 
     for (const registration of registrations) {
       if (!registration.since) {
         continue;
       }
 
-      const year = registration.since.getUTCFullYear();
-
+      const academicYearLabel = getCurrentAcademicYearLabel(registration.since);
       registrationsByYearMap.set(
-        year,
-        (registrationsByYearMap.get(year) ?? 0) + 1,
+        academicYearLabel,
+        (registrationsByYearMap.get(academicYearLabel) ?? 0) + 1,
       );
     }
 
@@ -80,11 +71,11 @@ export const GET = auth(async function GET(req) {
         year,
         total,
       }),
-    ).sort((a, b) => b.year - a.year);
+    ).sort((a, b) => b.year.localeCompare(a.year));
 
     return successResponse({
       totalUsers,
-      selectedYear,
+      selectedYear: academicYear.label,
       yearTotal,
       registrationsByYear,
     });
