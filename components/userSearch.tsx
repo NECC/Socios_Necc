@@ -44,8 +44,8 @@ const searchOptions: SearchOption[] = [
   },
   {
     value: "year",
-    label: "Ano de inscrição",
-    placeholder: "Introduzir ano. Ex: 2027",
+    label: "Ano letivo",
+    placeholder: "Introduzir ano letivo. Ex: 2026/2027",
   },
 ];
 
@@ -70,7 +70,11 @@ export default function UserSearch({ onSearch }: UserSearchProps) {
         return;
       }
 
-      if (searchType === "year" && !/^\d{4}$/.test(value)) {
+      if (
+        searchType === "year" &&
+        !/^\d{4}\s*\/\s*\d{4}$/.test(value) &&
+        !/^\d{4}$/.test(value)
+      ) {
         return;
       }
 
