@@ -6,7 +6,7 @@ import type { ApiResponse } from "@/types/api";
 import { getApiErrorMessage } from "@/lib/apiError";
 
 type YearRegistration = {
-  year: number;
+  year: string;
   total: number;
 };
 
