@@ -32,7 +32,7 @@ export default function SignIn() {
       );
 
       if (!response.data.data.exists) {
-        showToast.error("Email não registado", {
+        showToast.error("Não foi possível iniciar sessão.", {
           duration: 4000,
           progress: false,
           position: "top-right",
